@@ -4,8 +4,7 @@
  * Extracted from logic.js to reduce file size.
  */
 
-// Import dependencies from shared namespace
-const { createNewRow, sortItems, getLoadMoreDetails } = window.planCSharedData || {};
+// No longer importing from shared namespace to avoid duplicate declarations
 
 /**
  * Update the UI with provider data
@@ -32,15 +31,41 @@ function updateUI(providers, isLoadMore = false) {
         document.querySelectorAll('.states_result_load-more').forEach(el => el.remove());
     }
 
+    // Ensure we have access to the svgIcons
+    const svgIcons = window.svgIcons || window.planCSharedData?.svgIcons || {};
+    if (!svgIcons || Object.keys(svgIcons).length === 0) {
+        console.warn('SVG icons not found or empty. UI elements may not display correctly.');
+    }
+
     // Add new rows
     providers.forEach(provider => {
-        const row = createNewRow(provider, window.planCSharedData?.svgIcons || window.svgIcons || {});
-        resultsContainer.appendChild(row);
+        // Get the createNewRow function directly or from the global namespace
+        let createRowFn;
+        
+        if (typeof window.createNewRow === 'function') {
+            createRowFn = window.createNewRow;
+        } else if (typeof window.planCSharedData?.createNewRow === 'function') {
+            createRowFn = window.planCSharedData.createNewRow;
+        } else {
+            console.error('createNewRow function not found');
+            return;
+        }
+        
+        try {
+            const row = createRowFn(provider, svgIcons);
+            if (row) {
+                resultsContainer.appendChild(row);
+            } else {
+                console.error('Failed to create row for provider:', provider);
+            }
+        } catch (error) {
+            console.error('Error creating row:', error, provider);
+        }
     });
 
     // Update counter displays
     updateCounterDisplays();
-
+    
     // Add event listeners to new rows
     addRowEventListeners();
 }

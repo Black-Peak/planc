@@ -13,72 +13,43 @@
  */
 async function fetchSuppliers(payload, loadMoreFetch=false, updateUI=true) {
     try {
-        // Build query params
-        const queryParams = [];
-        if (payload.looking_for) {
-            queryParams.push(`looking_for=${encodeURIComponent(payload.looking_for)}`);
-        }
-        if (payload.state) {
-            queryParams.push(`state=${encodeURIComponent(payload.state)}`);
-        }
-        if (payload.type_and_amount && payload.type_and_amount.type) {
-            queryParams.push(`type=${encodeURIComponent(payload.type_and_amount.type)}`);
-        }
-        if (payload.type_and_amount && payload.type_and_amount.amount) {
-            queryParams.push(`amount=${encodeURIComponent(payload.type_and_amount.amount)}`);
-        }
-        if (payload.language && payload.language.hindi) {
-            queryParams.push(`hindi=${encodeURIComponent(payload.language.hindi)}`);
-        }
-        if (payload.language && payload.language.spanish) {
-            queryParams.push(`spanish=${encodeURIComponent(payload.language.spanish)}`);
-        }
-        if (payload.language && payload.language.french) {
-            queryParams.push(`french=${encodeURIComponent(payload.language.french)}`);
-        }
-        if (payload.sorting && payload.sorting.sortColumn) {
-            queryParams.push(`sort_column=${encodeURIComponent(payload.sorting.sortColumn)}`);
-        }
-        if (payload.sorting && payload.sorting.orderBy) {
-            queryParams.push(`order_by=${encodeURIComponent(payload.sorting.orderBy)}`);
-        }
-        if (payload.accepts_insurance) {
-            queryParams.push(`accepts_insurance=${encodeURIComponent(payload.accepts_insurance)}`);
-        }
-        if (payload.accepts_medicaid) {
-            queryParams.push(`accepts_medicaid=${encodeURIComponent(payload.accepts_medicaid)}`);
-        }
-        if (payload.discounts_available) {
-            queryParams.push(`discounts_available=${encodeURIComponent(payload.discounts_available)}`);
-        }
-        if (payload.no_face_interaction) {
-            queryParams.push(`no_face_interaction=${encodeURIComponent(payload.no_face_interaction)}`);
-        }
-        if (payload.extra_misoprostol_included) {
-            queryParams.push(`extra_misoprostol_included=${encodeURIComponent(payload.extra_misoprostol_included)}`);
-        }
+        const baseUrl = "https://x5y9-ip6q-ykpo.n7c.xano.io/api:t1-Xws3y/suppliers/paginated?";
+        const queryParams = new URLSearchParams({
+            looking_for: payload.looking_for,
+            state: payload.state,
+            password: "vbRUJPQBWQWDNTK!yPo9yvJ",
+        });
 
-        // Build the URL
-        const baseUrl = 'https://api.example.com/suppliers'; // Replace with actual API URL
-        const url = `${baseUrl}${queryParams.length ? '?' + queryParams.join('&') : ''}`;
+        const additionalParams = ["type_and_amount", "language", "sorting", "accepts_insurance", "accepts_medicaid", "discounts_available", "no_face_interaction", "extra_misoprostol_included"];
+        additionalParams.forEach((param) => {
+            if (payload[param]) {
+                queryParams.append(param, JSON.stringify(payload[param]));
+            }
+        });
 
-        // Make the API request
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`API request failed with status ${response.status}`);
-        }
+        const url = `${baseUrl}${queryParams.toString()}`;
+        const requestOptions = {
+            method: "GET",
+            redirect: "follow",
+        };
 
+        const response = await fetch(url, requestOptions);
+        if (!response.ok)
+            throw new Error("Failed to fetch suppliers");
         const data = await response.json();
-
-        // Process the data
+        
         if (updateUI) {
+            // Validate that data is either an array or has an items property
+            if (!data || (!(Array.isArray(data)) && !data.items)) {
+                console.error('Invalid API response format:', data);
+                throw new Error('Invalid response format from API');
+            }
             handleNewData(data, loadMoreFetch);
         }
-
         return data;
     } catch (error) {
         console.error('Error fetching suppliers:', error);
-        return [];
+        throw new Error(error);
     }
 }
 
@@ -114,6 +85,8 @@ async function fetchSuppliersForAllTypes(payload) {
         const combinedData = results.reduce((acc, data) => {
             if (Array.isArray(data)) {
                 return [...acc, ...data];
+            } else if (data && data.items && Array.isArray(data.items)) {
+                return [...acc, ...data.items];
             }
             return acc;
         }, []);
@@ -130,17 +103,36 @@ async function fetchSuppliersForAllTypes(payload) {
 
 /**
  * Handle new data from the API
- * @param {Array} data The data returned from the API
+ * @param {Object|Array} data The data returned from the API
  * @param {boolean} isLoadMoreFetch Whether this is a "load more" request
  */
 function handleNewData(data, isLoadMoreFetch=false) {
-    if (!Array.isArray(data)) {
+    let itemsToProcess;
+    
+    // Check if data is a paginated response object
+    if (data && data.items && Array.isArray(data.items)) {
+        // Store pagination data in a global variable for potential later use
+        window.planCSharedData = window.planCSharedData || {};
+        window.planCSharedData.paginationInfo = {
+            currentPage: data.curPage,
+            nextPage: data.nextPage,
+            prevPage: data.prevPage,
+            totalItems: data.itemsTotal,
+            totalPages: data.pageTotal,
+            perPage: data.perPage,
+            offset: data.offset
+        };
+        
+        itemsToProcess = data.items;
+    } else if (Array.isArray(data)) {
+        itemsToProcess = data;
+    } else {
         console.error('Invalid data format received:', data);
         return;
     }
     
     // Transform the data
-    const transformedData = transformData(data);
+    const transformedData = transformData(itemsToProcess);
     
     // Update counters
     updateCounters(transformedData);

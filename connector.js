@@ -12,10 +12,32 @@ window.planCSharedData.payload = window.planCSharedData.payload || {};
 
 // Explicitly expose functions from logic.js for use in logic2.js
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('Connector script initializing shared context...');
+  
+  // Make sure svgIcons is available globally
+  if (typeof original !== 'undefined' && original.svgIcons) {
+    window.svgIcons = original.svgIcons;
+    window.planCSharedData.svgIcons = original.svgIcons;
+    console.log('SVG icons loaded from original.js');
+  }
+  
   // Wait for logic.js to execute first
   setTimeout(function() {
+    // First check if svgIcons exists in the global scope
+    if (typeof svgIcons !== 'undefined' && typeof window.svgIcons === 'undefined') {
+      window.svgIcons = svgIcons;
+      console.log('SVG icons copied to window namespace');
+    }
+    
     // Link variables from logic.js to the shared namespace
-    if (typeof svgIcons !== 'undefined') window.planCSharedData.svgIcons = svgIcons;
+    if (typeof svgIcons !== 'undefined') {
+      window.planCSharedData.svgIcons = svgIcons;
+      console.log('SVG icons stored in shared namespace');
+    } else if (typeof window.svgIcons !== 'undefined') {
+      window.planCSharedData.svgIcons = window.svgIcons;
+      console.log('SVG icons copied from window to shared namespace');
+    }
+    
     if (typeof counter !== 'undefined') window.planCSharedData.counter = counter;
     if (typeof payload !== 'undefined') window.planCSharedData.payload = payload;
     if (typeof sortingModeActive !== 'undefined') window.planCSharedData.sortingModeActive = sortingModeActive;
@@ -31,6 +53,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof fetchSuppliers !== 'undefined') window.planCSharedData.fetchSuppliers = fetchSuppliers;
     if (typeof handleNewData !== 'undefined') window.planCSharedData.handleNewData = handleNewData;
     if (typeof applyFilters !== 'undefined') window.planCSharedData.applyFilters = applyFilters;
+    if (typeof createNewRow !== 'undefined') {
+      window.planCSharedData.createNewRow = createNewRow;
+      console.log('createNewRow function stored in shared namespace');
+    }
     
     console.log('Connector script has linked functions from logic.js');
   }, 100);

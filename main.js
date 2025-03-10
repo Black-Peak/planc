@@ -7,6 +7,24 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Initializing application...');
     
+    // Ensure SVG icons are available
+    if (!window.svgIcons && !window.planCSharedData.svgIcons) {
+        console.error('SVG icons not found. UI elements may not display correctly.');
+    } else if (window.svgIcons && !window.planCSharedData.svgIcons) {
+        window.planCSharedData.svgIcons = window.svgIcons;
+    } else if (!window.svgIcons && window.planCSharedData.svgIcons) {
+        window.svgIcons = window.planCSharedData.svgIcons;
+    }
+    
+    // Ensure createNewRow function is available
+    if (!window.createNewRow && !window.planCSharedData.createNewRow) {
+        console.error('createNewRow function not found. UI elements may not display correctly.');
+    } else if (window.createNewRow && !window.planCSharedData.createNewRow) {
+        window.planCSharedData.createNewRow = window.createNewRow;
+    } else if (!window.createNewRow && window.planCSharedData.createNewRow) {
+        window.createNewRow = window.planCSharedData.createNewRow;
+    }
+    
     // Initialize the application state
     window.planCApp = window.planCApp || {
         counter: {
