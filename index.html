@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Finder</title>
+    <style>
+        /* Add your styles here or link to CSS files */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="states_info_h1">Provider Results</h1>
+    <h2 class="states_info_h1 is-main">0 Results</h2>
+    <div class="states_info_text hide-mobile-landscape">Showing <span class="states_info_text is-grey">0 of 0 Results</span></div>
+    <h2 class="states_info_h2">Abortion pills as soon as possible</h2>
+
+    <!-- Filter section -->
+    <div class="filters-section">
+        <select id="Sort-by-4">
+            <option value="name-asc">Sort by Name</option>
+            <option value="price-asc">Sort by Price</option>
+            <option value="deliveryTime-asc">Sort by Delivery Time</option>
+        </select>
+        
+        <select id="filters_location_dropdown">
+            <option>Select State</option>
+            <option>New York</option>
+            <option>California</option>
+            <option>Military (APO, FPO, DPO)</option>
+        </select>
+        
+        <select id="Need-6">
+            <option>Abortion pills as soon as possible</option>
+            <option>Pills now in case of future need</option>
+            <option>A pill for a late period</option>
+        </select>
+        
+        <select id="Language">
+            <option>Select Language</option>
+            <option>Se habla Espanol</option>
+            <option>We speak Hindi</option>
+            <option>Nous parlons en Francais</option>
+        </select>
+        
+        <div class="checkbox-filters">
+            <div class="states_filter_checkbox-input">
+                <input type="checkbox" id="offers_slilding_scale">
+                <label class="states_filter_checkbox-text" for="offers_slilding_scale">Offers Discount</label>
+            </div>
+            <div class="states_filter_checkbox-input">
+                <input type="checkbox" id="accepts_insurance">
+                <label class="states_filter_checkbox-text" for="accepts_insurance">Accepts Insurance</label>
+            </div>
+            <div class="states_filter_checkbox-input">
+                <input type="checkbox" id="accepts_medicaid">
+                <label class="states_filter_checkbox-text" for="accepts_medicaid">Accepts Medicaid</label>
+            </div>
+            <div class="states_filter_checkbox-input">
+                <input type="checkbox" id="video_visit_required">
+                <label class="states_filter_checkbox-text" for="video_visit_required">Video Required</label>
+            </div>
+            <div class="states_filter_checkbox-input">
+                <input type="checkbox" id="extra_misoprostol">
+                <label class="states_filter_checkbox-text" for="extra_misoprostol">Extra Misoprostol</label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="states_result_component-wrapper is-main">
+        <div class="states_result_component"></div>
+    </div>
+
+    <!-- Load modules in correct order -->
+    <script>
+        // Create global shared data namespace
+        window.planCSharedData = window.planCSharedData || {};
+    </script>
+    
+    <!-- Load module files in the correct order -->
+    <script src="js/constants.js"></script>
+    <script src="js/svgIcons.js"></script>
+    <script src="js/utilityFunctions.js"></script>
+    <script src="js/createRow.js"></script>
+    <script src="js/apiOperations.js"></script>
+    <script src="js/domOperations.js"></script>
+    <script src="js/fixLogicJS.js"></script>
+    
+    <!-- Main application script -->
+    <script src="main.js"></script>
+</body>
+</html> 
